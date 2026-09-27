@@ -9,8 +9,17 @@ const {
   releaseStock,
 } = require('./helpers/sale.helpers');
 
+// ✅ Atributos mapeados correctamente (BD en español -> JSON en inglés para Swagger)
 const detailInclude = [
-  { model: Product, as: 'product', attributes: ['id', 'name', 'price'] },
+  { 
+    model: Product, 
+    as: 'product', 
+    attributes: [
+      'id', 
+      ['nombre', 'name'], 
+      ['precio', 'price']
+    ] 
+  },
   { model: Sale, as: 'sale', attributes: ['id', 'userId', 'date', 'total'] },
 ];
 
@@ -69,7 +78,7 @@ async function create(req, res, next) {
       const product = await reserveStock(productId, quantity, transaction);
 
       const detail = await SaleDetail.create(
-        { saleId, productId, quantity, price: price ?? product.price },
+        { saleId, productId, quantity, price: price ?? product.precio },
         { transaction }
       );
       await recalculateSaleTotal(saleId, transaction);
@@ -111,8 +120,8 @@ async function update(req, res, next) {
       const product = await reserveStock(changes.productId, changes.quantity, transaction);
 
       // Si cambia el producto y no se indica precio, se toma el precio del nuevo producto.
-      if (changes.productId !== detail.productId && price === undefined) changes.price = product.price;
-      if (changes.price === undefined || changes.price === null) changes.price = product.price;
+      if (changes.productId !== detail.productId && price === undefined) changes.price = product.precio;
+      if (changes.price === undefined || changes.price === null) changes.price = product.precio;
 
       await detail.update(changes, { transaction });
 

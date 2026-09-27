@@ -9,11 +9,21 @@ const {
 } = require('./helpers/sale.helpers');
 
 const saleInclude = [
-  { model: User, as: 'user', attributes: ['id', 'name', 'email', 'role'] },
+  { 
+    model: User, 
+    as: 'user', 
+    attributes: ['id', 'nombre', 'email', 'rol'] 
+  },
   {
     model: SaleDetail,
     as: 'details',
-    include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price'] }],
+    include: [
+      { 
+        model: Product, 
+        as: 'product', 
+        attributes: ['id', 'nombre', 'precio', 'stock'] 
+      }
+    ],
   },
 ];
 

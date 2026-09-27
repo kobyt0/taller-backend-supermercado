@@ -33,21 +33,33 @@ function optionalPrice(value, field = 'price') {
   return round2(price);
 }
 
-/** Valida y normaliza el arreglo de detalles recibido al crear/actualizar una venta. */
+/** Valida, normaliza y consolida el arreglo de detalles. */
 function parseDetailsInput(details) {
   if (!Array.isArray(details) || details.length === 0) {
     throw new HttpError(400, 'details debe ser un arreglo con al menos un producto');
   }
-  return details.map((item, index) => {
+
+  const map = new Map();
+
+  details.forEach((item, index) => {
     if (!item || typeof item !== 'object') {
       throw new HttpError(400, `details[${index}] debe ser un objeto`);
     }
-    return {
-      productId: requireId(item.productId, `details[${index}].productId`),
-      quantity: requireQuantity(item.quantity, `details[${index}].quantity`),
-      price: optionalPrice(item.price, `details[${index}].price`),
-    };
+
+    const productId = requireId(item.productId, `details[${index}].productId`);
+    const quantity = requireQuantity(item.quantity, `details[${index}].quantity`);
+    const price = optionalPrice(item.price, `details[${index}].price`);
+
+    if (map.has(productId)) {
+      const existing = map.get(productId);
+      existing.quantity += quantity;
+      if (price !== undefined) existing.price = price;
+    } else {
+      map.set(productId, { productId, quantity, price });
+    }
   });
+
+  return Array.from(map.values());
 }
 
 /** Lógica de negocio: total = Σ (quantity * price) de los detalles. */
@@ -65,14 +77,16 @@ async function recalculateSaleTotal(saleId, transaction) {
 
 /** Descuenta stock del producto verificando disponibilidad. Devuelve el producto. */
 async function reserveStock(productId, quantity, transaction) {
-  const product = await Product.findByPk(productId, { transaction, lock: transaction.LOCK.UPDATE });
+  const product = await Product.findByPk(productId, { transaction });
   if (!product) throw new HttpError(404, `El producto con id ${productId} no existe`);
+  
   if (product.stock < quantity) {
     throw new HttpError(
       400,
-      `Stock insuficiente para "${product.name}" (disponible: ${product.stock}, solicitado: ${quantity})`
+      `Stock insuficiente para "${product.name || product.nombre}" (disponible: ${product.stock}, solicitado: ${quantity})`
     );
   }
+
   await product.decrement('stock', { by: quantity, transaction });
   return product;
 }
@@ -93,7 +107,7 @@ async function buildSaleLines(items, transaction) {
     lines.push({
       productId: product.id,
       quantity: item.quantity,
-      price: item.price ?? product.price,
+      price: item.price ?? product.price ?? product.precio,
     });
   }
   return lines;

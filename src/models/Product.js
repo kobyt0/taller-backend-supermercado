@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Provider = require('./Provider');
 
 const Product = sequelize.define('Product', {
   id: {
@@ -26,9 +25,5 @@ const Product = sequelize.define('Product', {
 }, {
   timestamps: true,
 });
-
-
-Product.belongsTo(Provider, { foreignKey: 'providerId', as: 'proveedor' });
-Provider.hasMany(Product, { foreignKey: 'providerId', as: 'productos' });
 
 module.exports = Product;
