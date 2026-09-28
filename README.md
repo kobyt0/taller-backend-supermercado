@@ -11,7 +11,7 @@ El sistema administra usuarios, proveedores, productos y ventas. Cada venta pued
 | Integrante | Rol | Responsabilidades |
 |---|---|---|
 | Harold David Garces Casas | Backend / DevOps | **Módulo transaccional + Swagger + Documentación:** modelos y CRUD de `Sales` y `SaleDetails`; relaciones Usuario → Ventas, Venta → DetalleVenta y Producto → DetalleVenta; cálculo automático del total de la venta (`quantity × price`), control de stock y transacciones; configuración de Swagger; flujo de ramas y Pull Requests en GitHub; redacción del README. |
-| Darrel Godoy Quintero | Backend | **Módulo de catálogo:** modelos y endpoints de `Users`, `Providers` y `Products`; relación Proveedor → Productos; conexión a PostgreSQL; servidor Express (`server.js`) e integración de las rutas y de Swagger UI. |
+| Valeria Virginia Godoy Quintero | Backend | **Módulo de catálogo:** modelos y endpoints de `Users`, `Providers` y `Products`; relación Proveedor → Productos; conexión a PostgreSQL; servidor Express (`server.js`) e integración de las rutas y de Swagger UI. |
 
 ---
 
